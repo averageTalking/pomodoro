@@ -68,7 +68,7 @@ Wenn erfolgreich
 ```text
 Successfully deleted. This is gone now!
 ```
-Wenn erfolgreich
+Wenn fehlerhaft
 ```text
 There has been an error!
 ```
@@ -81,7 +81,7 @@ Wenn erfolgreich
 ```text
 Successfully deleted. This is gone now!
 ```
-Wenn erfolgreich
+Wenn fehlerhaft
 ```text
 There has been an error!
 ```
