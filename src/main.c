@@ -1,16 +1,53 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "main.h"
+
+#define CONFIG_FILE "config.txt"
+#define HISTORY_FILE "history.txt"
 
 
 
 /**********************************************************************************
- * config_session - Write configuration command
- * @param arg: Argument for session duration configuration in hh:mm:ss format
+ * write_config - Write configuration command
+ * @param time_str: Argument for session duration configuration in hh:mm:ss format
  **********************************************************************************/
-void config_session(char *arg) {
-    printf("Config: %s\n", arg);
+void write_config(char *time_str) {
+    int h, m, s;
+    FILE *file;
+
+    if (strlen(time_str) != 8 || time_str[2] != ':' || time_str[5] != ':' ||
+        !(isdigit(time_str[0]) && isdigit(time_str[1]) &&
+          isdigit(time_str[3]) && isdigit(time_str[4]) &&
+          isdigit(time_str[6]) && isdigit(time_str[7]))) {
+        printf("Invalid time format. Use hh:mm:ss\n");
+        return;
+    }
+
+    if (sscanf(time_str, "%2d:%2d:%2d", &h, &m, &s) == 3) {
+        if (m >= 60 || s >= 60) {
+            printf("Invalid times. Minutes and seconds are not allowed to be over 60\n");
+            return;
+        }
+        file = fopen(CONFIG_FILE, "w");
+        if (!file) {
+            perror("Could not open config file");
+            return;
+        }
+        fprintf(file, "%s\n", time_str);
+        fclose(file);
+        printf("Configuration %s saved to %s\n", time_str, CONFIG_FILE);
+    } else {
+        printf("Invalid time format. Use hh:mm:ss\n");
+    }
+}
+
+
+
+int formatTime(int h, int m, int s) {
+    int total = h * 3600 + m * 60 + s;
+    return total;
 }
 
 
@@ -30,9 +67,8 @@ void start_session(char *arg) {
             return;
         }
     }
-    else printf("Starting session with config\n");
+    printf("Session started with config.\n");
 }
-
 
 
 /**********************************************************************************
@@ -79,7 +115,7 @@ int main(int argc, char *argv[]) {
     }
 
     Command commands[] = {
-        {"config", config_session, 1},
+        {"config", write_config, 1},
         {"start", start_session, 0},
         {"history", (void (*)(char*)) show_history, 0},
         {"delete", delete, 1}
