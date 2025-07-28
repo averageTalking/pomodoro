@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <unistd.h>
 #include "main.h"
 
 #define CONFIG_FILE "config.txt"
@@ -45,9 +46,66 @@ void write_config(char *time_str) {
 
 
 
-int formatTime(int h, int m, int s) {
+/**********************************************************************************
+ * parseTime - Convert hours, minutes, and seconds to total seconds
+ * @param h: Hours
+ * @param m: Minutes
+ * @param s: Seconds
+ * @return Total time in seconds
+ **********************************************************************************/
+int parseTime(int h, int m, int s) {
+    if (h < 0 || m < 0 || m >= 60 || s < 0 || s >= 60) {
+        printf("Invalid time values.\n");
+        return 0;
+    }
     int total = h * 3600 + m * 60 + s;
     return total;
+}
+
+
+
+/**********************************************************************************
+ * print_progress - Print a progress bar for the timer
+ * @param current: Current elapsed time in seconds
+ * @param total: Total duration in seconds
+ **********************************************************************************/
+void print_progress(int current, int total) {
+    int percent = (current * 100) / total;
+    int width = 50;
+    int pos = (percent * width) / 100;
+
+    printf("\r%3d%% [", percent);
+    for (int i = 0; i < width; ++i) {
+        if (i < pos) printf("#");
+        else printf("-");
+    }
+    printf("]");
+    fflush(stdout);
+}
+
+
+
+/**********************************************************************************
+ * timer - Start a timer for the given duration
+ * @param h: Hours
+ * @param m: Minutes
+ * @param s: Seconds
+ **********************************************************************************/
+void timer(int h, int m, int s) {
+    int total_seconds = parseTime(h, m, s);
+    printf("Starting timer for %02d:%02d:%02d (%d seconds)\n", h, m, s, total_seconds);
+
+    if (total_seconds <= 0) {
+        printf("Invalid session duration. Please set a valid time.\n");
+        return;
+    }
+
+    for (int elapsed = 0; elapsed <= total_seconds; elapsed++) {
+        print_progress(elapsed, total_seconds);
+        sleep(1);
+    }
+
+    printf("\nGreat job! You have finished the session. Here your stats\n");
 }
 
 
@@ -57,17 +115,41 @@ int formatTime(int h, int m, int s) {
  * @param arg: Argument for session duration in hh:mm:ss format
  **********************************************************************************/
 void start_session(char *arg) {
+    int h, m, s;
+    FILE *file = fopen(CONFIG_FILE, "r");
+    if (file) {
+        char buf[16];
+        if (fgets(buf, sizeof(buf), file)) {
+            if (sscanf(buf, "%2d:%2d:%2d", &h, &m, &s) == 3) {
+                // h, m, s now contain the values from config.txt
+            } else {
+                printf("Invalid config format in %s\n", CONFIG_FILE);
+                fclose(file);
+                return;
+            }
+        } else {
+            printf("Could not read from %s\n", CONFIG_FILE);
+            fclose(file);
+            return;
+        }
+        fclose(file);
+    } else {
+        printf("Could not open %s\n", CONFIG_FILE);
+        return;
+    }
+
+
     if (arg) {
         int h, m, s;
-        if (sscanf(arg, "%2d:%2d:%2d", &h, &m, &s) == 3 &&
-            h >= 0 && m >= 0 && m < 60 && s >= 0 && s < 60) {
-            printf("Starting session with duration: %02d:%02d:%02d\n", h, m, s);
+        if (sscanf(arg, "%2d:%2d:%2d", &h, &m, &s) == 3 && h >= 0 && m >= 0 && m < 60 && s >= 0 && s < 60) {
+            timer(h, m, s);
         } else {
             printf("Invalid duration format. Use hh:mm:ss\n");
             return;
         }
+        return;
     }
-    printf("Session started with config.\n");
+    timer(h, m, s);
 }
 
 

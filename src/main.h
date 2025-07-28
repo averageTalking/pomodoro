@@ -7,12 +7,16 @@
 
 
 
-void write_config_cmd(char *arg);
-void start_cmd(char *arg);
-void history_cmd();
-void delete_cmd(char *arg);
-void help_cmd();
-void version_cmd();
+void write_config(char *arg);
+
+int parseTime(int h, int m, int s);
+void print_progress(int current, int total);
+void timer(int h, int m, int s);
+void start_session(char *arg);
+
+void show_history();
+void delete(char *arg);
+
 int main(int argc, char *argv[]);
 
 
