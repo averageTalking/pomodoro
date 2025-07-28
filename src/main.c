@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <ncurses.h>
 #include "main.h"
 
 #define CONFIG_FILE "config.txt"
@@ -93,20 +94,83 @@ void print_progress(int current, int total) {
  **********************************************************************************/
 void timer(int h, int m, int s) {
     int total_seconds = parseTime(h, m, s);
-    printf("Starting timer for %02d:%02d:%02d (%d seconds)\n", h, m, s, total_seconds);
-
     if (total_seconds <= 0) {
         printf("Invalid session duration. Please set a valid time.\n");
         return;
     }
 
-    for (int elapsed = 0; elapsed <= total_seconds; elapsed++) {
-        print_progress(elapsed, total_seconds);
+    initscr();
+    cbreak();
+    noecho();
+    nodelay(stdscr, TRUE);
+    keypad(stdscr, TRUE);
+
+    int ch;
+    int paused = 0;
+    int elapsed = 0;
+    int canceled = 0;
+
+    while (elapsed <= total_seconds) {
+        clear();
+        int remaining = total_seconds - elapsed;
+        int percent = (elapsed * 100) / total_seconds;
+        int width = 50;
+        int pos = (percent * width) / 100;
+
+        printw("Time remaining: %02d:%02d:%02d\n", remaining / 3600, (remaining / 60) % 60, remaining % 60);
+        printw("%3d%% [", percent);
+        for (int i = 0; i < width; ++i)
+            printw(i < pos ? "#" : "-");
+        printw("]\n");
+
+        printw("Press C (cancel)     R (restart)      P (pause/resume)\n");
+        if (paused) {
+            printw("Status: Paused\n");
+        }
+
+        ch = getch();
+        if (ch == 'c' || ch == 'C') {
+            printw("Cancel session? (y/n): ");
+            refresh();
+            nodelay(stdscr, FALSE);
+            int confirm = getch();
+            if (confirm == 'y' || confirm == 'Y') {
+                printw("\nSession canceled.\n");
+                canceled = 1;
+                break;
+            }
+            nodelay(stdscr, TRUE);
+        } else if (ch == 'r' || ch == 'R') {
+            printw("Restart session? (y/n): ");
+            refresh();
+            nodelay(stdscr, FALSE);
+            int confirm = getch();
+            if (confirm == 'y' || confirm == 'Y') {
+                elapsed = 0;
+                paused = 0;
+                nodelay(stdscr, TRUE);
+                continue;
+            }
+            nodelay(stdscr, TRUE);
+        } else if (ch == 'p' || ch == 'P') {
+            paused = !paused;
+        }
+
+        refresh();
         sleep(1);
+        if (!paused) elapsed++;
     }
 
-    printf("\nGreat job! You have finished the session. Here your stats\n");
+    if (!canceled && elapsed > total_seconds) {
+        printw("\nGreat job! You have finished the session.\n");
+        printw("Press any key to exit...\n");
+        nodelay(stdscr, FALSE);
+        getch();
+    }
+
+    endwin();
 }
+
 
 
 
@@ -151,6 +215,7 @@ void start_session(char *arg) {
     }
     timer(h, m, s);
 }
+
 
 
 /**********************************************************************************
