@@ -85,3 +85,16 @@ Wenn fehlerhaft
 ```text
 There has been an error!
 ```
+
+
+## Project Structure
+```
+pomodoro/
+├── bin/
+├── src/
+│   ├── main.c
+│   └── main.h
+├── .gitignore
+├── Makefile
+└── README.md/
+```
