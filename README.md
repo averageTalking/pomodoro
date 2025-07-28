@@ -19,18 +19,18 @@ make clean   # Deletes the bin/ directory
 
 ## Features
 
->>> CONFIGURATION
+> CONFIGURATION
 Configuration of the duration for every session (optional)
 ```bash
 pomodoro config <hh:mm:ss>
 ```
 
->>> SESSION with Configuration
+> SESSION with Configuration
 ```bash
 pomodoro start
 ```
 
->>> SESSION without Configuration 
+> SESSION without Configuration 
 ```bash
 pomodoro start <hh:mm:ss>
 ```
@@ -38,11 +38,15 @@ pomodoro start <hh:mm:ss>
 Working ...
 <Prozentanzeige>% <Fortschrittsbalken>
 ```
-Button "C" for Cancel current session after confirming that you really want to cancel
-Button "R" for Restart current session after confirming that you really want to restart
-Button "S" for Stop current session
+  
+**Keyboard Controls:**
 
->>> HISTORY
+- **C** — Cancel current session (after confirmation)
+- **R** — Restart current session (after confirmation)
+- **S** — Stop current session
+
+
+> HISTORY
 ```bash
 pomodoro history
 ```
@@ -56,19 +60,29 @@ Session   Status     Time       Date
 n         n          n          n
 ```
 
->>> HISTORY MANAGEMENT
+> HISTORY MANAGEMENT
 Delete the complete history of your sessions
 ```bash
 pomodoro delete all
 ```
+Wenn erfolgreich
 ```text
-Erfolgsnachricht
+Successfully deleted. This is gone now!
+```
+Wenn erfolgreich
+```text
+There has been an error!
 ```
 
 Delete a specific history of your sessions
 ```bash
 pomodoro delete <session_number>
 ```
+Wenn erfolgreich
 ```text
-Erfolgsnachricht
+Successfully deleted. This is gone now!
+```
+Wenn erfolgreich
+```text
+There has been an error!
 ```
