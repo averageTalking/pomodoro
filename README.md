@@ -60,8 +60,7 @@ Session   Status     Time       Date
 n         n          n          n
 ```
 
-> HISTORY MANAGEMENT
-Delete the complete history of your sessions
+> HISTORY MANAGEMENT - Delete the complete history of your sessions
 ```bash
 pomodoro delete all
 ```
@@ -74,7 +73,7 @@ Wenn erfolgreich
 There has been an error!
 ```
 
-Delete a specific history of your sessions
+> HISTORY MANAGEMENT - Delete a specific history of your sessions
 ```bash
 pomodoro delete <session_number>
 ```
